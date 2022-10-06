@@ -1,0 +1,54 @@
+th, td {
+    padding: 10px 10px;
+}
+
+input {
+    border: 1px solid transparent;
+    background: none;
+    color: var(--text);
+    font-size: inherit;
+    padding: 2px 10px;
+    outline: none;
+}
+
+input:not([disabled]) {
+    border-color: var(--text);
+}
+
+input[type="button"] {
+    cursor: pointer;
+}
+
+input:not([disabled]):hover, input:focus {
+    --text: white;
+}
+
+tr.editing input[name="update"] {
+    --text: var(--green2);
+}
+
+tr.editing input[name="update"]:hover {
+    --text: var(--green);
+}
+
+tr:not(.editing) input[name="cancel"] {
+    visibility: hidden;
+    pointer-events:none;
+}
+
+tr.editing input[name="cancel"] {
+    --text: var(--red2);
+}
+
+tr.editing input[name="cancel"]:hover {
+    --text: var(--red);
+}
+
+tr.editing input[name="cancel"]:hover {
+    --text: var(--red);
+}
+
+.add-new-td {
+    padding-top: 30px;
+    border-top: 1px solid var(--text);
+}

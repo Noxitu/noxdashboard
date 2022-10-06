@@ -1,0 +1,14 @@
+{
+    "apps": [
+        {
+            "name": "kwejk"
+        },
+        {
+            "name": "resources"
+        },
+        {
+            "name": "static",
+            "route": "/static"
+        }
+    ]
+}

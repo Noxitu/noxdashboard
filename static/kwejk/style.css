@@ -1,0 +1,45 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+section {
+    display: inline-flex;
+    flex-direction: column;
+    background: black;
+    color: var(--text);
+    padding: 5px 50px;
+    margin-bottom: 50px
+}
+
+.post {
+    margin-bottom: 100px;
+}
+
+h1 {
+    opacity: 25%;
+    border-bottom: 1px solid var(--text);
+    padding-bottom: 8px;
+    margin-bottom: 0;
+}
+
+h1 > a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h1:hover {
+    text-decoration: underline;
+}
+
+h2 {
+    max-width: 610px;
+    margin-bottom: 0;
+}
+
+h6 {
+    margin-top: 0;
+    opacity: 25%;
+    font-size: 10px;
+}

@@ -1,0 +1,1 @@
+& '.venv\Scripts\uvicorn.exe' noxdashboard.apps.app_router.app:create_app --factory --reload --port 5000
