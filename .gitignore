@@ -1,0 +1,12 @@
+/.vscode
+/.venv
+/.wheels
+/*/build
+/upload.ps1
+__pycache__/
+*.egg-info/
+
+secrets.sh
+secrets.ps1
+Secrets.md
+ssl/
