@@ -8,7 +8,7 @@
         },
         {
             "name": "static",
-            "route": "/static"
+            "route": "/docs"
         }
     ]
 }
