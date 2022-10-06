@@ -1,4 +1,4 @@
-import { Endpoint } from '../_shared/endpoint.js'
+import { Endpoint } from '../shared/endpoint.js'
 
 const PREFIX = '[KwejkAPI]'
 

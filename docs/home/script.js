@@ -1,4 +1,4 @@
-import { Endpoint } from "../_shared/endpoint.js"
+import { Endpoint } from "../shared/endpoint.js"
 
 window.addEventListener('load', () => {
     const timeout = 10000
