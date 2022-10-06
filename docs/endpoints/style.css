@@ -48,7 +48,22 @@ tr.editing input[name="cancel"]:hover {
     --text: var(--red);
 }
 
+tr.editing .endpoint-open {
+    display: none;
+}
+
 .add-new-td {
     padding-top: 30px;
     border-top: 1px solid var(--text);
+}
+
+a.endpoint-open {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color ease-in-out 300ms;
+}
+
+a.endpoint-open:hover {
+    color: var(--gold);
 }

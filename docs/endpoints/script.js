@@ -4,6 +4,7 @@ function refresh(row) {
     row.innerHTML = `
         <td><input name="name" type="text" value="${row._entry.name}" size="6" disabled placeholder="Name" autocomplete="off"></td>
         <td><input name="endpoint" type="text" value="${row._entry.endpoint}" size="24" disabled placeholder="Endpoint URL" autocomplete="off"></td>
+        <td><a class="endpoint-open material-icons" href="${row._entry.endpoint}" target="_blank" rel="noopener noreferrer">open_in_new</a></td>
         <td><input name="key" type="password" value="${row._entry.key}" size="6" disabled placeholder="API Key" autocomplete="off"></td>
         <td><input name="update" type="button" value="Update" onclick="update(this);"></td>
         <td><input name="cancel" type="button" value="Cancel" onclick="update(this);"></td>

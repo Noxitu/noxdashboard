@@ -7,6 +7,6 @@ DEFAULT_ROUTE = '/'
 
 def create_app():
     app = fastapi.FastAPI()
-    app.mount('/', StaticFiles(directory='static', html=True))
+    app.mount('/', StaticFiles(directory='docs', html=True))
 
     return app

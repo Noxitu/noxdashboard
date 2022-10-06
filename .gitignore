@@ -9,4 +9,4 @@ __pycache__/
 secrets.sh
 secrets.ps1
 Secrets.md
-ssl/
+ssl/*.pem
