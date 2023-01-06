@@ -2,7 +2,7 @@ import fastapi
 from fastapi.staticfiles import StaticFiles
 
 
-DEFAULT_ROUTE = '/'
+DEFAULT_ROUTE = '/static'
 
 
 def create_app():

@@ -1,9 +1,9 @@
 import threading
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect
 import psutil
 
-from noxdashboard.apikey import CHECK_API_KEY, check_ws_api_key
+from noxdashboard.api_router import APIRouter
 
 
 DEFAULT_ROUTE = '/resources'
@@ -23,18 +23,17 @@ class ResourceMonitor:
 
 
 def create_app():
-    app = FastAPI(**CHECK_API_KEY)
+    app = APIRouter()
     monitor = ResourceMonitor()
 
-    @app.get("/get")
+    @app.get('/get')
     def get():
         return monitor.data
 
-    @app.websocket("/subscribe")
+    @app.websocket('/subscribe')
     async def subscribe(websocket: WebSocket):
         try:
             await websocket.accept()
-            await check_ws_api_key(websocket)
 
             while True:
                 data = await websocket.receive_json()

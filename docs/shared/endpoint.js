@@ -11,7 +11,7 @@ export class Endpoint {
     fetch(url) {
         const options = {
             headers: {
-                'X-Api-Key': this._endpoint.key
+                'X-Token': this._endpoint.key
             }
         }
         return fetch(`${this._endpoint.endpoint}${url.substring(1)}`, options)
@@ -25,11 +25,9 @@ export class Endpoint {
         let callback = null
 
         const socketPromise = new Promise( (resolve, reject) => {
-            const socket = new WebSocket(url)
+            const socket = new WebSocket(url + `?token=${this._endpoint.key}`)
 
             socket.addEventListener('open', ev => {
-                const handshake = {apiKey: this._endpoint.key}
-                socket.send(JSON.stringify(handshake))
                 resolve(socket)
             })
 

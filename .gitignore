@@ -6,7 +6,6 @@
 __pycache__/
 *.egg-info/
 
-secrets.sh
-secrets.ps1
 Secrets.md
 ssl/*.pem
+/db

@@ -1,0 +1,3 @@
+
+class Permission:
+    Default = 'default'

@@ -1,17 +1,16 @@
-from fastapi import FastAPI
 
 from noxdashboard.modules.kwejk import Downloader
-from noxdashboard.apikey import CHECK_API_KEY
+from noxdashboard.api_router import APIRouter
 
 
 DEFAULT_ROUTE = '/kwejk'
 
 
 def create_app():
-    app = FastAPI(**CHECK_API_KEY)
+    app = APIRouter()
     kwejk = Downloader()
 
-    @app.get('/health') 
+    @app.get('/health', tags=['health']) 
     def health():
         return True
 

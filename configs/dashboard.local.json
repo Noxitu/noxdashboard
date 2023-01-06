@@ -7,8 +7,10 @@
             "name": "resources"
         },
         {
-            "name": "static",
-            "route": "/static"
+            "name": "feed"
+        },
+        {
+            "name": "static"
         }
     ]
 }

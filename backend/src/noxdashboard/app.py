@@ -1,33 +1,15 @@
 import importlib
-import json
-import os
-from pathlib import Path
 
 import fastapi
 
 from .cors import allow_cors
-
-
-def get_config_paths():
-    name = os.environ.get('NOXDASHBOARD_NAME')
-
-    if name is not None:
-        yield f'./configs/dashboard.{name}.json'
-
-    yield './configs/dashboard.json'
-
-
-def load_config():
-    for path in get_config_paths():
-        if Path(path).exists():
-            with open(path) as fd:
-                return json.load(fd)
+from .settings import get_settings
 
 
 def create_app():
     app = fastapi.FastAPI()
 
-    config = load_config()
+    config = get_settings()
 
     for app_config in config.get('apps', []):
         app_name = app_config['name']
@@ -41,9 +23,16 @@ def create_app():
         if route is None:
             raise Exception('Route not provided')
 
+        print(f'Creating module {app_name} in route: {route}.')
         subapp = module.create_app()
 
-        app.mount(route, subapp)
+        if isinstance(subapp, fastapi.APIRouter):
+            subrouter = fastapi.APIRouter(prefix=route, tags=[app_name])
+            subrouter.include_router(subapp)
+            app.include_router(subrouter)
+
+        else:
+            app.mount(route, subapp)
 
     allow_cors(app)
 

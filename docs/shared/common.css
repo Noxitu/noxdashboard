@@ -12,7 +12,7 @@ html {
     --blue: #6cc7df;
     --blue2: #2f49d1;
 
-    height: 100%;
+    min-height: 100%;
     padding: 0;
     margin: 0;
 }
@@ -21,10 +21,10 @@ body {
     background: var(--entry-background);    
 
     color: var(--text);
-    font-family: 'Segoe UI', Roboto, Arial, Helvetica, sans-serif;
+    font-family: Segoe UI Historic, Segoe UI, Helvetica, Arial, sans-serif;
     font-size: 16px;
 
-    height: 100%;
+    min-height: 100%;
     padding: 0;
     margin: 0;
 }
