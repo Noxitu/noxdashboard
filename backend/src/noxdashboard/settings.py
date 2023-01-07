@@ -6,7 +6,7 @@ import pydantic
 
 
 class EnvSettings(pydantic.BaseSettings):
-    instance_name: str = 'local'
+    instance_name: str = pydantic.Field('local', env='NOXDASHBOARD_NAME')
 
 
 @lru_cache

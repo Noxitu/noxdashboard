@@ -11,5 +11,7 @@ setup(
         'requests',
         'psutil',
         'websockets',
-    ]
+        'sqlalchemy',
+    ],
+    python_requires='>=3.9',
 )

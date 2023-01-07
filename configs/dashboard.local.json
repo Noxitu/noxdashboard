@@ -7,7 +7,7 @@
             "name": "resources"
         },
         {
-            "name": "feed"
+            "name": "-feed"
         },
         {
             "name": "static"
