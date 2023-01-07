@@ -1,8 +1,8 @@
 import { ResourceAPI } from "../shared/resource_api.js"
 import { FeedAPI } from "./feed_api.js"
 
-function fill_open_action(element, url, label = 'Open') {
-    element.querySelector('.icon').innerText = 'open_in_new'
+function fill_open_action(element, url, label = 'Open', icon = 'open_in_new') {
+    element.querySelector('.icon').innerText = icon
     element.querySelector('.label').innerText = label
     element.href = url
     element.rel = 'noopener noreferrer'
@@ -221,6 +221,8 @@ export class EndpointEntry extends Entry {
             this.init_valid_endpoint()
         else
             this.init_invalid_endpoint()
+
+        fill_open_action(this.actions.endpoints, '../endpoints', 'Endpoints', 'format_list_bulleted_add')
     }
 
     init_valid_endpoint() {
@@ -244,11 +246,14 @@ export class EndpointEntry extends Entry {
             getStatElement('.feed-count').innerHTML = data.count
             getStatElement('.feed-size').innerHTML = `${Math.round(data.size / 1024 / 1024 * 10) / 10} MB`
         })
+
+        this.add_actions(['endpoints'])
+        
     }
 
     init_invalid_endpoint() {
         this.element.innerHTML += '<p>Endpoint query failed.</p>'
-        this.add_actions(['open'])
+        this.add_actions(['endpoints', 'open'])
         fill_open_action(this.actions.open, this.endpoint.url())
     }
 }
