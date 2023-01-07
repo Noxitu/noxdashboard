@@ -227,7 +227,7 @@ export class EndpointEntry extends Entry {
 
     init_valid_endpoint() {
         this.feed_stats_element = document.createElement('p')
-        this.feed_stats_element.style.cssText = 'display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 2px 1em;'
+        this.feed_stats_element.style.cssText = 'display: grid; grid-template-columns: auto 1fr; gap: 2px 1em;'
         this.feed_stats_element.innerHTML = `
             <b>CPU</b> <progress class="cpu-usage" max="100"></progress>
             <b>RAM</b> <progress class="ram-usage" max="100"></progress>
