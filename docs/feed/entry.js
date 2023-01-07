@@ -252,7 +252,24 @@ export class EndpointEntry extends Entry {
     }
 
     init_invalid_endpoint() {
-        this.element.innerHTML += '<p>Endpoint query failed.</p>'
+        this.feed_stats_element = document.createElement('p')
+        this.feed_stats_element.style.cssText = 'display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 2px 1em;'
+        this.feed_stats_element.innerHTML = `
+            <b>CPU</b> <progress class="cpu-usage" max="100"></progress>
+            <b>RAM</b> <progress class="ram-usage" max="100"></progress>
+        `
+        this.element.append(this.feed_stats_element)
+        const getStatElement = s => this.feed_stats_element.querySelector(s)
+
+        new ResourceAPI(this.endpoint).subscribe(data => {
+            getStatElement('.cpu-usage').value = data.cpu
+            getStatElement('.ram-usage').value = data.mem
+        })
+
+        const p = document.createElement('p')
+        p.innerHTML = 'Endpoint /feed query failed.'
+        this.element.append(p)
+
         this.add_actions(['endpoints', 'open'])
         fill_open_action(this.actions.open, this.endpoint.url())
     }
