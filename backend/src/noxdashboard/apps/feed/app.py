@@ -10,7 +10,7 @@ from noxdashboard.permissions import permissions
 from . import database, models, schemas
 
 DEFAULT_ROUTE = '/feed'
-PERMISSION_NAME = 'feed::feed_source'
+PERMISSION_FEED_SOURCE = 'feed::feed_source'
 
 
 def create_app():
@@ -22,20 +22,27 @@ def create_app():
     def health():
         return True
 
+    @app.get('/stats', summary='Get database statistics.')
+    def stats(db: Session = Depends(database.get)):
+        return dict(
+            count=db.query(models.Post).count(),
+            size=database.get_size()
+        )
+
     @app.get('/', summary='List feed elements.', response_model=list[schemas.Post])
     @permissions()
     def feed(db: Session = Depends(database.get)):
         items = db.query(models.Post)
         items = items.where(or_(models.Post.seen != 1, models.Post.like))
         items = items.order_by(models.Post.timestamp.desc())
-        items = items.offset(0).limit(50)
+        items = items.offset(0).limit(150)
         items = items.all()
         items = [schemas.Post.from_db(item) for item in items]
 
         return items
 
     @app.put('/add', summary='Add multiple new feed elements.')
-    @permissions(PERMISSION_NAME)
+    @permissions(PERMISSION_FEED_SOURCE)
     def add(
         items: list[schemas.PostCreate],
         db: Session = Depends(database.get)

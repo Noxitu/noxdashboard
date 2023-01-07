@@ -1,8 +1,13 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = 'sqlite:///./db/feed.sqlite3'
+
+DATABASE_PATH = './db/feed.sqlite3'
+SQLALCHEMY_DATABASE_URL = f'sqlite:///{DATABASE_PATH}'
+
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args=dict(
@@ -25,3 +30,8 @@ def get():
         yield db
     finally:
         db.close()
+
+
+def get_size():
+    """Get Database size in bytes."""
+    return os.stat(DATABASE_PATH).st_size

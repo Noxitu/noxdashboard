@@ -1,43 +1,53 @@
-import { Entry } from './entry.js'
+import { BasicEntry, LoadingEntry, EndpointEntry } from './entry.js'
+import { Endpoint, endpointsList } from '../shared/endpoint.js'
+import { FeedAPI } from './feed_api.js'
 
 history.scrollRestoration = 'manual'
 
 async function init() {
-    const res = await fetch('/feed/')
-    const data = await res.json().then(items => items.map(item => new Entry(item)))
+    const loading_entry = new LoadingEntry(endpointsList.length)
+    loading_entry.append_to(document.body)
 
-    for (const post of data) {
-        const send_update = () => {
-            fetch('/feed/mark', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    "id": post.id,
-                    "like": post.like,
-                    "seen": post.seen
-                })
-            })
-        }
+    const promises = []
 
-        document.body.append(post.create({
-            'like.click': () => {
-                post.like = !post.like
-                post.render()
-                send_update()
-            },
-            'seen.click': () => {
-                post.seen = (post.seen == Entry.STATUS_SEEN ? Entry.STATUS_NOT_SEEN_MANUAL : Entry.STATUS_SEEN)
-                post.render()
-                send_update()
-            },
-            'seen.auto': () => {
-                post.seen = Entry.STATUS_SEEN
-                post.render()
-                send_update()
+    for (const endpoint_desc of endpointsList) {
+        const endpoint = new Endpoint(endpoint_desc)
+
+        const promise = new FeedAPI(endpoint).get().then(data => {
+            loading_entry.increase()
+            return {
+                data: data,
+                endpoint: endpoint,
             }
-        }))
+        }).catch(() => {
+            return {
+                data: null,
+                endpoint: endpoint,
+            }
+        })
+        
+        promises.push(promise)
+    }
+
+    const feeds = await Promise.all(promises)
+
+    loading_entry.remove()
+
+    for (const feed of feeds) {
+        const entry = new EndpointEntry(feed.endpoint, feed.data !== null)
+        entry.append_to(document.body)
+    }
+
+    // TODO: proper merge of feeds
+
+    for (const feed of feeds) {
+        if (feed.data === null)
+            continue
+
+        for (const entry_desc of feed.data) {
+            const entry = new BasicEntry(feed.endpoint, entry_desc)
+            entry.append_to(document.body)
+        }
     }
 }
 

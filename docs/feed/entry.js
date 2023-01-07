@@ -1,128 +1,170 @@
+import { ResourceAPI } from "../shared/resource_api.js"
+import { FeedAPI } from "./feed_api.js"
 
-function source(timestamp, image, title, source, { round } = { round: true }) {
-    return `
-        <div class="source">
-            <span class="icon ${round ? 'round' : ''}" style="background-image: url(../shared/${image});"></span>
-            <span class="title">${title}</span>
-            <span class="timestamp">${new Date(timestamp * 1000).toLocaleString()} · ${source}</span>
-        </div>
-    `
+function fill_open_action(element, url, label = 'Open') {
+    element.querySelector('.icon').innerText = 'open_in_new'
+    element.querySelector('.label').innerText = label
+    element.href = url
+    element.rel = 'noopener noreferrer'
+    element.target = '_blank'
 }
 
-function add_seen_anchor(post, div) {
-    if (post.seen == Entry.STATUS_NOT_SEEN_AUTO) {
-        div.innerHTML += '<div class="seen-anchor"></div>'
-        const anchor = div.querySelector('.seen-anchor')
-
-        const observer = new IntersectionObserver((entries) => {
-            if (!entries[0].isIntersecting)
-                return
-
-            if (post.seen == Entry.STATUS_NOT_SEEN_AUTO)
-                post.automaticly_see()
-
-            observer.disconnect()
-        }, { threshold: [1.0] })
-
-        setTimeout(function () {
-            observer.observe(anchor)
-        }, 1)
-    }
-}
-
-function actions(post, actions) {
+function create_source_header(source) {
     const div = document.createElement('div')
-    div.classList.add('actions')
-    div.style.cssText += `--action-count: ${actions.length};`
-
-    const html = []
-
-    for (const action of actions) {
-        html.push(`<a data-${action}>`)
-        html.push('<span class="icon material-symbols-outlined">question_mark</span>')
-        html.push('<span class="label">----</span>')
-        html.push('</a>')
-    }
-
-    div.innerHTML = html.join('\n')
-    add_seen_anchor(post, div)
+    div.classList.add('source')
+    div.innerHTML = `
+        <span class="icon ${source.round !== false ? 'round' : ''}" style="background-image: url(../shared/${source.image});"></span>
+        <span class="title">${source.title}</span>
+        <span class="timestamp">${source.timestamp !== null ? new Date(source.timestamp * 1000).toLocaleString() : ''} · ${source.name}</span>
+    `
 
     return div
 }
 
-const ADDERS = {
-    kwejk: function (post, section) {
-        section.innerHTML = `
-            ${source(post.timestamp, 'kwejk.png', 'Kwejk', 'Kwejk')}
-            
-            <img src="${post.content.image}">
-            <p class="polish">${post.content.title}</p>
-        `
-
-    },
-    youtube: function (post, section) {
-        section.innerHTML = `
-            ${source(post.timestamp, 'youtube.svg', post.content.channel, 'Youtube', { round: false })}
-            
-            <img src="https://i3.ytimg.com/vi/${post.id}/maxresdefault.jpg">
-            <p>${post.content.title}</p>
-
-        `
-    },
-    mangapill: function (post, section) {
-        section.innerHTML = `
-            ${source(post.timestamp, 'YourName-Manga.png', 'Manga', 'MangaPill')}
-            
-            <center><img src="${post.content.image}" style="max-height: 500px; width: auto; margin: auto;"></center>
-            <p><b>${post.content.title} - Chapter ${post.content.chapter}</b></p>
-            <p><i>${post.content.subtitle}</i></p>
-
-        `
-    },
-    gogoanime: function (post, section) {
-        section.innerHTML = `
-            ${source(post.timestamp, 'YourName-Anime.png', 'Anime', 'GogoAnime')}
-            
-            <center><img src="${post.content.image}" style="max-height: 500px; width: auto; margin: auto;"></center>
-            <p><b>${post.content.title} - ${post.content.episode}</b></p>
-
-        `
+function get_source_info(data) {
+    const SOURCES = {
+        kwejk: {title: 'Kwejk', image: 'kwejk.png'},
+        youtube: {title: data.content.channel, image: 'youtube.svg', round: false},
+        mangapill: {title: 'Manga', image: 'YourName-Manga.png'},
+        gogoanime: {title: 'Anime', image: 'YourName-Anime.png'},
+    }
+    return {
+        ...{
+            name: data.source,
+            timestamp: data.timestamp,
+        },
+        ...SOURCES[data.source]
     }
 }
 
-const STATUS_SEEN_MASK = 1
-const STATUS_LIKED_MASK = 2
+function get_content(post) {
+    return {
+        kwejk: () => `
+            <img src="${post.content.image}">
+            <p class="polish">${post.content.title}</p>
+        `,
+        youtube: () => `
+            <img src="https://i3.ytimg.com/vi/${post.id}/maxresdefault.jpg">
+            <p>${post.content.title}</p>
+        `,
+        mangapill: () => `
+            <center><img src="${post.content.image}" style="max-height: 500px; width: auto; margin: auto;"></center>
+            <p><b>${post.content.title} - Chapter ${post.content.chapter}</b></p>
+            <p><i>${post.content.subtitle}</i></p>
+        `,
+        gogoanime: () => `
+            <center><img src="${post.content.image}" style="max-height: 500px; width: auto; margin: auto;"></center>
+            <p><b>${post.content.title} - ${post.content.episode}</b></p>
+        `,
+    }[post.source]()
+}
+
+function add_seen_event(div, callback) {
+    const anchor = document.createElement('div')
+    anchor.classList.add('seen-anchor')
+    div.append(anchor)
+
+    const observer = new IntersectionObserver((entries) => {
+        if (!entries[0].isIntersecting)
+            return
+            
+        callback()
+
+        observer.disconnect()
+    }, { threshold: [1.0] })
+
+    setTimeout(function () {
+        observer.observe(anchor)
+    }, 1)
+}
 
 export class Entry {
-    static STATUS_NOT_SEEN_AUTO = 0
-    static STATUS_SEEN = 1
-    static STATUS_NOT_SEEN_MANUAL = 2
-
-    constructor(data) {
-        for (const key of Object.keys(data)) {
-            this[key] = data[key]
-        }
-    }
-
-    create(callbacks) {
+    constructor(source_info) {
         this.element = document.createElement('section')
-        ADDERS[this.source](this, this.element)
-        this.element.append(actions(this, ['like', 'seen', 'open']))
-        this.render()
-        this.get_action('like').addEventListener('click', () => callbacks['like.click']())
-        this.get_action('seen').addEventListener('click', () => callbacks['seen.click']())
-        this.automaticly_see = () => callbacks['seen.auto']()
 
-        return this.element
+        this.element.append(create_source_header(source_info))
     }
 
-    get_action(name) {
-        return this.element.querySelector(`.actions [data-${name}]`)
+    append_to(feed_container) {
+        feed_container.append(this.element)
     }
 
-    render() {
-        const render_action = (action, [value, icon, label]) => {
-            const e = this.get_action(action)
+    remove() {
+        this.element.remove()
+    }
+
+    add_actions(actions) {
+        this.actions_element = document.createElement('div')
+        this.actions_element.classList.add('actions')
+        this.actions_element.style.cssText += `--action-count: ${actions.length};`
+
+        const html = []
+
+        for (const action of actions) {
+            html.push(`<a data-${action}>`)
+            html.push('<span class="icon material-symbols-outlined">question_mark</span>')
+            html.push(`<span class="label">${action}</span>`)
+            html.push('</a>')
+        }
+
+        this.actions_element.innerHTML = html.join('\n')
+        this.element.append(this.actions_element)
+        this.actions = Object.fromEntries(
+            [...this.actions_element.querySelectorAll('a')].map( (value, i) => [actions[i], value] )
+        )
+    }
+}
+
+const STATUS_NOT_SEEN_AUTO = 0
+const STATUS_SEEN = 1
+const STATUS_NOT_SEEN_MANUAL = 2
+
+export class BasicEntry extends Entry {
+    constructor(endpoint, post) {
+        super(get_source_info(post))
+        this.endpoint = endpoint
+        this.post = post
+        this.element.innerHTML += get_content(post)
+        this.add_actions(['like', 'seen', 'open'])
+
+        this.actions.like.addEventListener('click', () => this.toggle_like())
+        this.actions.seen.addEventListener('click', () => this.toggle_seen())
+
+        if (this.post.seen == STATUS_NOT_SEEN_AUTO)
+            add_seen_event(this.actions_element, () => this.auto_see())
+
+        this.update_actions()
+    }
+
+    send_update() {
+        new FeedAPI(this.endpoint).update(this.post)
+    }
+
+    toggle_like() {
+        console.log('toggle_like', this)
+        this.post.like = !this.post.like
+        this.update_actions()
+        this.send_update()
+    }
+
+    toggle_seen() {
+        this.post.seen = (this.post.seen == STATUS_SEEN ? STATUS_NOT_SEEN_MANUAL : STATUS_SEEN)
+        this.update_actions()
+        this.send_update()
+    }
+
+    auto_see() {
+        if (this.post.seen != STATUS_NOT_SEEN_AUTO)
+            return
+
+        this.post.seen = STATUS_SEEN
+        this.update_actions()
+        this.send_update()
+    }
+
+    update_actions() {
+        const fill_action = (action, [value, icon, label]) => {
+            const e = this.actions[action]
             e.dataset[action] = value
             e.querySelector('.icon').innerHTML = icon
             e.querySelector('.label').innerHTML = label
@@ -139,13 +181,74 @@ export class Entry {
             2: ['not', 'visibility', 'Not seen'],
         }
 
-        render_action('like', LIKE_VALUES[this.like])
-        render_action('seen', SEEN_VALUES[this.seen])
-        render_action('open', ['', 'open_in_new', 'Open'])
+        fill_action('like', LIKE_VALUES[this.post.like])
+        fill_action('seen', SEEN_VALUES[this.post.seen])
+        fill_open_action(this.actions.open, this.post.content.url)
+    }
+}
 
-        const open = this.get_action('open')
-        open.href = this.content.url
-        open.rel = 'noopener noreferrer'
-        open.target = '_blank'
+export class LoadingEntry extends Entry {
+    constructor(count) {
+        super({
+            title: 'Loading...',
+            name: 'internal',
+            image: 'CloudServer.png',
+            timestamp: null
+        })
+        this.progress = document.createElement('progress')
+        this.progress.max = count
+        this.progress.value = 0
+        this.element.append(this.progress)
+    }
+
+    increase() {
+        this.progress.value += 1
+    }
+}
+
+export class EndpointEntry extends Entry {
+    constructor(endpoint, is_valid) {
+        super({
+            title: `Endpoint: ${endpoint.name()}`,
+            name: 'internal',
+            image: 'CloudServer.png',
+            timestamp: null
+        })
+
+        this.endpoint = endpoint
+
+        if (is_valid)
+            this.init_valid_endpoint()
+        else
+            this.init_invalid_endpoint()
+    }
+
+    init_valid_endpoint() {
+        this.feed_stats_element = document.createElement('p')
+        this.feed_stats_element.style.cssText = 'display: grid; grid-template-columns: auto 1fr auto 1fr; gap: 2px 1em;'
+        this.feed_stats_element.innerHTML = `
+            <b>CPU</b> <progress class="cpu-usage" max="100"></progress>
+            <b>RAM</b> <progress class="ram-usage" max="100"></progress>
+            <b>Entry count</b> <span class="feed-count">-</span>
+            <b>DB size</b> <span class="feed-size">-</span> 
+        `
+        this.element.append(this.feed_stats_element)
+        const getStatElement = s => this.feed_stats_element.querySelector(s)
+
+        new ResourceAPI(this.endpoint).subscribe(data => {
+            getStatElement('.cpu-usage').value = data.cpu
+            getStatElement('.ram-usage').value = data.mem
+        })
+
+        new FeedAPI(this.endpoint).getStats().then(data => {
+            getStatElement('.feed-count').innerHTML = data.count
+            getStatElement('.feed-size').innerHTML = `${Math.round(data.size / 1024 / 1024 * 10) / 10} MB`
+        })
+    }
+
+    init_invalid_endpoint() {
+        this.element.innerHTML += '<p>Endpoint query failed.</p>'
+        this.add_actions(['open'])
+        fill_open_action(this.actions.open, this.endpoint.url())
     }
 }

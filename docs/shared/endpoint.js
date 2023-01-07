@@ -8,12 +8,20 @@ export class Endpoint {
         this._endpoint = endpoint
     }
 
-    fetch(url) {
-        const options = {
-            headers: {
-                'X-Token': this._endpoint.key
-            }
-        }
+    name() {
+        return this._endpoint.name
+    }
+
+    url() {
+        return this._endpoint.endpoint
+    }
+
+    fetch(url, options = {}) {
+        if (options.headers === undefined)
+            options.headers = {}
+
+        options.headers['X-Token'] = this._endpoint.key
+
         return fetch(`${this._endpoint.endpoint}${url.substring(1)}`, options)
     }
 
@@ -24,7 +32,7 @@ export class Endpoint {
 
         let callback = null
 
-        const socketPromise = new Promise( (resolve, reject) => {
+        const socketPromise = new Promise((resolve, reject) => {
             const socket = new WebSocket(url + `?token=${this._endpoint.key}`)
 
             socket.addEventListener('open', ev => {
@@ -39,9 +47,9 @@ export class Endpoint {
         })
 
         return {
-            send: async function(message) {
+            send: async function (message) {
                 const socket = await socketPromise
-                return await new Promise( (resolve, reject) => {
+                return await new Promise((resolve, reject) => {
                     callback = resolve
                     socket.send(JSON.stringify(message))
                 })
@@ -66,7 +74,7 @@ export class Endpoint {
 
             function not() {
                 count -= 1
-                
+
                 if (count == 0)
                     reject()
             }
@@ -77,24 +85,23 @@ export class Endpoint {
                     const res = await endpoint.fetch(query)
                     const data = await res.json()
 
-                    if (data === true)
-                    {
+                    if (data === true) {
                         console.log(`Found endpoint "${item.name}" for "${query}".`)
                         return resolve(endpoint)
                     }
 
                     not()
-                } catch(ex) {
+                } catch (ex) {
                     console.log(ex)
                     not()
                 }
             }
-            
+
             for (const item of endpointsList) {
                 check(item)
             }
         })
-        
+
         return await promise
     }
 }

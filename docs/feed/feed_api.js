@@ -1,21 +1,41 @@
-import { Endpoint } from '../shared/endpoint.js'
 
-const PREFIX = '[FeedAPI]'
+export class QueryError extends Error {
+    constructor(response) {
+        super('FeedAPI query failed.')
+        this.response = response
+    }
+}
 
-export class KwejkAPI {
-    constructor() {
-        this._endpoint = Endpoint.createFromQuery('/feed/health')
+export class FeedAPI {
+    constructor(endpoint) {
+        this._endpoint = endpoint
     }
 
-    async getLatestID() {
-        const res = await (await this._endpoint).fetch('/kwejk/pages/latest_id')
+    async _fetch(url, options = {}) {
+        const res = await this._endpoint.fetch(url, options)
+
+        if (!res.ok)
+            throw QueryError(res)
+
         const data = await res.json()
-        return data.id
+        return data      
     }
 
-    async getPage(page_id) {
-        const res = await (await this._endpoint).fetch(`/kwejk/pages/${page_id}`)
-        const data = await res.json()
-        return data
+    get() {
+        return this._fetch('/feed/')
+    }
+
+    getStats() {
+        return this._fetch('/feed/stats')
+    }
+
+    update({id, like, seen}) {
+        return this._fetch('/feed/mark', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id, like, seen})
+        })
     }
 }
