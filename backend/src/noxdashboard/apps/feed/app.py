@@ -26,20 +26,36 @@ def create_app():
     def stats(db: Session = Depends(database.get)):
         return dict(
             count=db.query(models.Post).count(),
+            saved=db.query(models.Post).where(models.Post.like == 1).count(),
+            unread=db.query(models.Post).where(models.Post.seen == False).count(),
             size=database.get_size()
         )
 
+
     @app.get('/', summary='List feed elements.', response_model=list[schemas.Post])
     @permissions()
-    def feed(db: Session = Depends(database.get)):
+    def feed(filter: str = 'interesting', db: Session = Depends(database.get)):
         items = db.query(models.Post)
-        items = items.where(or_(models.Post.seen != 1, models.Post.like))
+
+        if filter == 'interesting':
+            items = items.where(or_(models.Post.seen == False, models.Post.like == 1))
+        elif filter == 'unseen':
+            items = items.where(models.Post.seen == False)
+        elif filter == 'saved':
+            items = items.where(models.Post.like == 1)
+        elif filter == 'archived':
+            items = items.where(models.Post.like == 2)
+        else:
+            raise Exception(f'Invalid filter={filter}')
+
         items = items.order_by(models.Post.timestamp.desc())
         items = items.offset(0).limit(150)
         items = items.all()
         items = [schemas.Post.from_db(item) for item in items]
 
         return items
+    
+    @app.get
 
     @app.put('/add', summary='Add multiple new feed elements.')
     @permissions(PERMISSION_FEED_SOURCE)

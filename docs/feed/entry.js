@@ -115,9 +115,8 @@ export class Entry {
     }
 }
 
-const STATUS_NOT_SEEN_AUTO = 0
-const STATUS_SEEN = 1
-const STATUS_NOT_SEEN_MANUAL = 2
+const STATUS_NOT_SEEN = false
+const STATUS_SEEN = true
 
 export class BasicEntry extends Entry {
     constructor(endpoint, post) {
@@ -130,7 +129,7 @@ export class BasicEntry extends Entry {
         this.actions.like.addEventListener('click', () => this.toggle_like())
         this.actions.seen.addEventListener('click', () => this.toggle_seen())
 
-        if (this.post.seen == STATUS_NOT_SEEN_AUTO)
+        if (this.post.seen == STATUS_NOT_SEEN)
             add_seen_event(this.actions_element, () => this.auto_see())
 
         this.update_actions()
@@ -142,19 +141,19 @@ export class BasicEntry extends Entry {
 
     toggle_like() {
         console.log('toggle_like', this)
-        this.post.like = !this.post.like
+        this.post.like = 1 - this.post.like
         this.update_actions()
         this.send_update()
     }
 
     toggle_seen() {
-        this.post.seen = (this.post.seen == STATUS_SEEN ? STATUS_NOT_SEEN_MANUAL : STATUS_SEEN)
-        this.update_actions()
-        this.send_update()
+        // this.post.seen = (this.post.seen == STATUS_SEEN ? STATUS_NOT_SEEN_MANUAL : STATUS_SEEN)
+        // this.update_actions()
+        // this.send_update()
     }
 
     auto_see() {
-        if (this.post.seen != STATUS_NOT_SEEN_AUTO)
+        if (this.post.seen != STATUS_NOT_SEEN)
             return
 
         this.post.seen = STATUS_SEEN
@@ -171,14 +170,13 @@ export class BasicEntry extends Entry {
         }
 
         const LIKE_VALUES = {
-            true: ['yes', 'favorite', 'Liked'],
-            false: ['no', 'heart_plus', 'Like']
+            1: ['yes', 'favorite', 'Liked'],
+            0: ['no', 'heart_plus', 'Like']
         }
 
         const SEEN_VALUES = {
-            0: ['not', 'visibility', 'Not seen'],
-            1: ['seen', 'visibility', 'Seen'],
-            2: ['not', 'visibility', 'Not seen'],
+            false: ['not', 'visibility', 'Not seen'],
+            true: ['seen', 'visibility', 'Seen'],
         }
 
         fill_action('like', LIKE_VALUES[this.post.like])

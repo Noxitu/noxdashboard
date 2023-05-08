@@ -8,7 +8,7 @@ class PostBase(BaseModel):
     id: str
     timestamp: float
     source: str
-    like: bool
+    like: int
     content: dict
 
 
@@ -18,13 +18,13 @@ class PostCreate(PostBase):
 
 class PostMarkers(BaseModel):
     id: str
-    like: bool
-    seen: int
+    like: int
+    seen: bool
 
 
 class Post(PostBase):
     # private_id: int
-    seen: int
+    seen: bool
 
     class Config:
         orm_mode = True

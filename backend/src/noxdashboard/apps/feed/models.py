@@ -14,7 +14,7 @@ class Post(Base):
     id = Column(String, unique=True, index=True)
     timestamp = Column(DateTime, nullable=False)
     source = Column(String, nullable=False)
-    like = Column(Integer, nullable=False)
+    like = Column(Integer, nullable=False, default=0)
     seen = Column(Integer,
                   nullable=False,
                   default=0)

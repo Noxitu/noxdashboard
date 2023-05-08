@@ -4,11 +4,18 @@ export class ResourceAPI {
         this._endpoint = endpoint
     }
 
-    subscribe(callback, interval = 10000) {
+    subscribe(callback, {interval = 10000, onerror}) {
         const channel = this._endpoint.channel('/resources/subscribe')
     
         async function updateUsage() {
-            const data = await channel.send(true)
+            let data
+            try {
+                data = await channel.send(true)
+            }
+            catch(_) {
+                onerror?.()
+                return
+            }
             setTimeout(() => { updateUsage() }, interval)
             callback(data)
         }
