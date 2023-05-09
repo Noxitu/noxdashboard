@@ -123,6 +123,14 @@ export class BasicEntry extends Entry {
         super(get_source_info(post))
         this.endpoint = endpoint
         this.post = post
+
+        // todo: remove once api server is updated
+        if (this.post.like === true) { this.post.like = 1 }
+        if (this.post.like === false) { this.post.like = 0 }
+        if (this.post.seen === 0) { this.post.seen = false}
+        if (this.post.seen === 1) { this.post.seen = true}
+        if (this.post.seen === 2) { this.post.seen = true}
+
         this.element.innerHTML += get_content(post)
         this.add_actions(['like', 'seen', 'open'])
 
