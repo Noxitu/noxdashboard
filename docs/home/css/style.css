@@ -23,6 +23,8 @@ body {
     background-attachment: fixed;
 
     font-family: Calibri, sans-serif;
+    backdrop-filter: grayscale(25%)  brightness(75%);
+
 }
 
 .hidden {
@@ -36,6 +38,12 @@ body {
         0 0 2px var(--foreground),
         0 0 5px var(--foreground),
         0 0 10px var(--foreground);
+}
+
+.clickable {
+    color: red;
+    text-decoration: underline;
+    min-width: 1em;
 }
 
 a[href].text-border {
@@ -52,7 +60,7 @@ a[href].text-border {
     --size: min(22.2vw, 10vh);
 }
 
-.flex-1 {
+.flexbox-column {
     display: flex; 
     flex-direction: column; 
     align-items: center;
@@ -83,28 +91,105 @@ x-clock::part(seconds)::before {
 
 /* Feed */
 
-#feed, #feed > horizontal-pages {
+horizontal-pages {
     width: 100%;
-    flex-grow: 1;
+}
+
+@media (hover: none) {
+    horizontal-pages::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 #feed-progress {
+    position: relative;
     height: 1vh;
     width: 100%;
 }
 
-#feed-progress::after {
-    content: '';
+#feed-progress > span {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
     display: block;
     background-color: white;
-    width: var(--value);
-    height: 100%;
 }
 
-/* Settings */
+#feed-progress-loaded {
+    opacity: 35%;
+    width: var(--loaded);
+    transition: width 500ms;
+}
 
-#settings {
-    padding-top: 5vh;
-    gap: 5vh;
-    font-size: 200%;
+#feed-progress-value {
+    width: var(--value);
+    transition: width 50ms;
+
+}
+
+/* Context-menu */
+
+#context-menu-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: black;
+    opacity: 50%;
+    transition: opacity 300ms;
+}
+
+#context-menu-shadow.hiding {
+    opacity: 0;
+}
+
+#context-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #eee;
+    max-height: 30vh;
+    font-size: 2.5vh;
+    overflow-y: auto;
+
+    display: grid;
+    grid-template-columns: auto 1fr;
+
+    transition: max-height 300ms;
+}
+
+#context-menu.hiding {
+    max-height: 0;
+}
+
+#context-menu > a {
+    color: #222;
+    height: 64px;
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: none;
+}
+
+#context-menu > a.failed-endpoint {
+    color: #cc0000;
+}
+
+#context-menu > .material-symbols-outlined {
+    color: #555;
+    width: 64px;
+    justify-content: center;
+}
+
+/* */
+
+section[data-seen="1"] [data-icon="seen"],
+section[data-seen="true"] [data-icon="seen"] { 
+    display: none;
+}
+
+section[data-saved="0"] [data-icon="saved"],
+section[data-saved="false"] [data-icon="saved"] { 
+    display: none;
 }

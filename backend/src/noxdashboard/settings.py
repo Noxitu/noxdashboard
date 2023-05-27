@@ -22,3 +22,4 @@ def get_settings(name='dashboard'):
 
     with open(config_path) as fd:
         return json.load(fd)
+

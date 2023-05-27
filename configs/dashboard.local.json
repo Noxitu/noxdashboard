@@ -11,6 +11,12 @@
         },
         {
             "name": "static"
+        },
+        {
+            "name": "image_cache",
+            "route": "/mangaimg",
+            "url": "https://cdn.readdetectiveconan.com/file/mangapill/i/",
+            "referer": "https://mangapill.com/"
         }
     ]
 }

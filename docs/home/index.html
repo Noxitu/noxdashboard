@@ -8,23 +8,42 @@
 </head>
 <body>
     <main class="layout">
-        <section id="clock" class="flex-1">
-            <x-clock class="text-border"></x-clock>
-            <x-date class="clock-secondary text-border"></x-date>
-        </section>
-    
-        <section id="feed" data-page="feed" class="hidden flex-1">
-            <horizontal-pages></horizontal-pages>
+        <horizontal-pages id="feed" style="flex-grow: 1;">
+            <section class="flexbox-column">
+                <div style="flex-grow: 1;"></div>
+                <div id="clock" class="flexbox-column">
+                    <x-clock class="text-border"></x-clock>
+                    <x-date class="clock-secondary text-border"></x-date>
+                </div>
+                <div style="flex-grow: 2;"></div>
+                <div class="text-border" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;">
+                    <span>Endpoint: </span><span id="endpoint-selector"></span>
+                    <span>Unread: </span><span id="stats-unread-count"></span>
+                    <span>Saved: </span><span id="stats-saved-count"></span>
+                    <span>Archived: </span><span id="stats-archived-count"></span>
+                    <span>Total: </span><span id="stats-total"> </span>
+                    <span>Image Cache: </span><span id="image-cache-info"></span>
+                </div>
+                <div style="flex-grow: 4;"></div>
+            </section>
+        </horizontal-pages>
 
-            <div id="feed-progress" style="--value: 0%;"></div>
-        </section>
+        <div id="feed-progress" style="--value: 0%; --loaded: 0%;">
+            <span id="feed-progress-loaded"></span>
+            <span id="feed-progress-value"></span>
+        </div>
 
-        <section id="settings" data-page="settings" class="hidden flex-1">
-            <a href="../endpoints" class="text-border" rel="noopener noreferrer" target="_blank">Endpoints</a>
-            <select name="endpoint">
-                <option>1</option>
-                <option>2</option>
-            </select>
+        <section id="context-menu-shadow" class="hidden hiding"></section>
+
+        <section id="context-menu" class="hidden hiding">
+            <a href="../endpoints" rel="noopener noreferrer" target="_blank" class="material-symbols-outlined">settings_applications</a>
+            <a href="../endpoints" rel="noopener noreferrer" target="_blank">Manage Endpoints</a>
+
+            <a class="material-symbols-outlined" data-context-menu="save">favorite</a>
+            <a data-context-menu="save">Save</a>
+
+            <a id="context-menu-fullscreen-icon" class="material-symbols-outlined" data-context-menu="fullscreen">fullscreen</a>
+            <a id="context-menu-fullscreen-label" data-context-menu="fullscreen">Fullscreen</a>
         </section>
     </main>
 </body>

@@ -1,4 +1,5 @@
 import importlib
+import inspect
 
 import fastapi
 
@@ -24,7 +25,17 @@ def create_app():
             raise Exception('Route not provided')
 
         print(f'Creating module {app_name} in route: {route}.')
-        subapp = module.create_app()
+
+        signature = inspect.signature(module.create_app)
+        kwargs = {}
+
+        def set_kwarg(key, value):
+            if key in signature.parameters:
+                kwargs[key] = value
+
+        set_kwarg('app_config', app_config)
+
+        subapp = module.create_app(**kwargs)
 
         if isinstance(subapp, fastapi.APIRouter):
             subrouter = fastapi.APIRouter(prefix=route, tags=[app_name])

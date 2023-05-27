@@ -1,5 +1,3 @@
-import json
-
 from fastapi import Depends
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -33,7 +31,6 @@ def create_app():
 
 
     @app.get('/', summary='List feed elements.', response_model=list[schemas.Post])
-    @permissions()
     def feed(filter: str = 'interesting', db: Session = Depends(database.get)):
         items = db.query(models.Post)
 
@@ -54,8 +51,6 @@ def create_app():
         items = [schemas.Post.from_db(item) for item in items]
 
         return items
-    
-    @app.get
 
     @app.put('/add', summary='Add multiple new feed elements.')
     @permissions(PERMISSION_FEED_SOURCE)
@@ -77,7 +72,6 @@ def create_app():
         return count
 
     @app.post('/mark', summary='Toggle feed element flags.')
-    @permissions()
     def mark(
         post: schemas.PostMarkers,
         db: Session = Depends(database.get)
