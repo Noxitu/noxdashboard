@@ -38,10 +38,10 @@ function create_amazon_entry(page, entry) {
     const html = []
 
     html.push(`
-    <div style="position: relative; flex-shrink: 1; flex-grow: 1; width: 100%; display: flex; flex-direction: column;">
+    <div style="position: relative; flex-shrink: 1; flex-grow: 1; width: 100%; display: flex; flex-direction: column; max-height: 100%; background: rgba(0, 0, 0, 40%); overflow-y: auto;">
         <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
-            <img style="max-width: 30vh; max-height: 8vw;" src="../shared/amazon.png">
-            <h6>${new Date(1000 * entry.timestamp).toLocaleString()}</h6>
+            <img style="max-width: 30vh; max-height: 8vw; margin: 1vh;" src="../shared/amazon.png">
+            <h3>${new Date(1000 * entry.timestamp).toLocaleString()}</h3>
         </div>
 
         <table style="flex-grow: 1;">
@@ -53,15 +53,15 @@ function create_amazon_entry(page, entry) {
             if (price === undefined || price == item.price)
                 return ''
 
-            return ` style="color: #${price < item.price ? '8ae234' : 'ef2929'}"`
+            return `color: #${item.price === null || price < item.price ? '8ae234' : 'ef2929'}`
         }
 
         html.push(`
             <tr>
                 <td>${item.title}</td>
-                <td>${item.price}</td>
-                <td${colorize(item.previous_price)}>${item.previous_price || ''}</td>
-                <td${colorize(item.lowest_price)}>${item.lowest_price || ''}</td>
+                <td style="text-align: center;">${item.price || ''}</td>
+                <td style="text-align: center; ${colorize(item.previous_price)}">${item.previous_price || ''}</td>
+                <td style="text-align: center; ${colorize(item.lowest_price)}">${item.lowest_price || ''}</td>
             </tr>
         `)  
     }
