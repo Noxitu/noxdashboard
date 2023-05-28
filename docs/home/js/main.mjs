@@ -1,31 +1,32 @@
 import * as f from './functions.mjs'
+import * as menus from './menus.mjs'
+
+import './fullscreen.mjs'
+import * as endpoint_manager from './endpoint_manager.mjs'
+import './page_manager.mjs'
 
 
-function addEvent(selector, event, handler) {
+
+function addEvent(selector, event_name, handler, {stopPropagation = false, preventDefault = false} = {}) {
     document.querySelectorAll(selector).forEach(element => {
-        element.addEventListener(event, handler)
+        element.addEventListener(event_name, event => {
+            if (stopPropagation) {
+                event.stopPropagation()
+            }
+            if (preventDefault) {
+                event.preventDefault()
+            }
+            handler(event)
+        })
     })
 }
 
+addEvent('body', 'click', () => menus.toggle_info() )
+addEvent('#context-menu-opener', 'click', () => menus.show_context_menu(), {stopPropagation: true} )
 
-addEvent('body', 'contextmenu', event => f.show_context_menu(event) )
-addEvent('#context-menu-shadow', 'click', () => f.hide_context_menu() )
 
-addEvent('#clock', 'click', () => f.toggle_fullscreen() )
+addEvent('body', 'contextmenu', () => menus.show_context_menu(), {preventDefault: true})
+addEvent('#context-menu-shadow', 'click', () => menus.hide_context_menu(), {stopPropagation: true} )
 
-addEvent('#feed', 'page_change', () => f.update_seen_pages() )
-addEvent('#feed', 'page_change', () => f.fill_feed() )
-
-addEvent('#feed', 'scroll', () => f.update_feed_scroll())
-
-addEvent('[data-context-menu="fullscreen"]', 'click', () => {
-    f.toggle_fullscreen()
-    f.hide_context_menu()
-})
-
-addEvent('[data-context-menu="save"]', 'click', () => {
-    f.toggle_like()
-    f.hide_context_menu()
-})
-
-f.init_endpoints()
+endpoint_manager.init()
+menus.request_info_menu(document.querySelector('#homepage'))

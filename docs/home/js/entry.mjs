@@ -32,6 +32,7 @@ function create_image_entry(page, image_url, title, subtitle) {
 
         if (last_context + 5000 > now) {
             ev.stopPropagation()
+            last_context = 0
         }
         else {
             last_context = now
@@ -49,8 +50,8 @@ const ENTRY_TYPES = {
         // const image = entry.content.image.replace('https://cdn.readdetectiveconan.com/file/mangapill/i/', entry.endpoint.url() + 'mangaimg/image/')
 
         const has_subtitle = entry.content.subtitle != ''
-        const title = `${has_subtitle ? entry.content.subtitle : entry.content.title} - Chapter ${entry.content.chapter}`
-        const subtitle = has_subtitle ? entry.content.title : undefined
+        const title = `${entry.content.title} - Chapter ${entry.content.chapter}`
+        const subtitle = has_subtitle ? entry.content.subtitle : undefined
         create_image_entry(page, image, title, subtitle)
     },
     gogoanime: (page, entry) => {
@@ -76,6 +77,34 @@ export function create_entry(entry) {
             console.error(entry)
         }
 
+        const save_item = document.createElement('a')
+        save_item.addEventListener('click', event => {
+            event.stopPropagation()
+            page.dispatchEvent(new CustomEvent('save'))
+        })
+
+        function update_save_item() {
+            if (entry.like === 1 || entry.like === true) {
+                save_item.innerHTML = '<span class="material-symbols-outlined">bookmark</span> Saved'
+            }
+            else {
+                save_item.innerHTML = '<span class="material-symbols-outlined">bookmark_add</span> Save'
+            }
+        }
+
+        update_save_item()
+
+        let open_item = null
+
+        if (entry.content.url !== undefined) {
+            open_item = document.createElement('a')
+            open_item.innerHTML = '<span class="material-symbols-outlined">open_in_new</span> Open'
+            open_item.setAttribute('rel', 'noopener noreferrer')
+            open_item.setAttribute('target', '_blank')
+            open_item.setAttribute('href', entry.content.url)
+            open_item.addEventListener('click', event => event.stopPropagation() )
+        }
+
         creator(page, entry)
 
         page.addEventListener('seen', async () => {
@@ -96,8 +125,19 @@ export function create_entry(entry) {
 
             await (new FeedAPI(entry.endpoint).update(entry))
             update_page(page, entry)
+            update_save_item()
         })
 
+        page.addEventListener('request-info-menu', event => {
+            event.stopPropagation()
+
+            page.dispatchEvent(new CustomEvent('create-info-menu', {detail: {
+                menu: [
+                    save_item, 
+                    ...(open_item !== null ? [open_item] : [])
+                ]
+            }, bubbles: true}))
+        })
     }
 
     return page

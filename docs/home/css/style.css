@@ -126,6 +126,55 @@ horizontal-pages {
 
 }
 
+/* Info-menu */
+.info-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    background: linear-gradient(var(--gradient-direction), rgba(0, 0, 0, 35%) 0%, rgba(0, 0, 0, 35%) 60%, rgba(0, 0, 0, 0%) 100%);
+    display: flex;
+    transition: opacity 300ms;
+    opacity: 100%;
+}
+
+.info-menu > .material-symbols-outlined {
+    font-size: 200%;
+}
+
+.info-menu > a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1vw;
+    text-decoration: none;
+    color: var(--highlight);
+    min-width: 20vw;
+}
+
+.info-menu.hiding {
+    opacity: 0;
+}
+
+#top-info-menu {
+    top: 0;
+    flex-direction: row-reverse;
+    padding: 5px 10px;
+    --gradient-direction: 180deg;
+}
+
+#bottom-info-menu {
+    bottom: 0;
+    flex-direction: row;
+    --gradient-direction: 0deg;
+    justify-content: space-around;
+    padding: 2vh;
+    vertical-align: center;
+}
+
+#bottom-info-menu[data-enabled="false"] {
+    color: #888;
+}
+
 /* Context-menu */
 
 #context-menu-shadow {
@@ -153,8 +202,8 @@ horizontal-pages {
     font-size: 2.5vh;
     overflow-y: auto;
 
-    display: grid;
-    grid-template-columns: auto 1fr;
+    display: flex;
+    flex-direction: column;
 
     transition: max-height 300ms;
 }
@@ -166,10 +215,18 @@ horizontal-pages {
 #context-menu > a {
     color: #222;
     height: 64px;
+
     display: inline-flex;
     flex-direction: row;
     align-items: center;
     text-decoration: none;
+}
+
+#context-menu > a > :first-child {
+    width: 48px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
 }
 
 #context-menu > a.failed-endpoint {
