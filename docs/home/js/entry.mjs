@@ -34,6 +34,47 @@ function create_image_entry(page, image_url, title, subtitle) {
 }
 
 
+function create_amazon_entry(page, entry) {
+    const html = []
+
+    html.push(`
+    <div style="position: relative; flex-shrink: 1; flex-grow: 1; width: 100%; display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-evenly;">
+            <img style="max-width: 30vh; max-height: 8vw;" src="../shared/amazon.png">
+            <h6>${new Date(1000 * entry.timestamp).toLocaleString()}</h6>
+        </div>
+
+        <table style="flex-grow: 1;">
+            <tr><th>Title</th><th>Price</th><th>Previous</th><th>Lowest</th></tr>
+    `)
+
+    for (const item of entry.content.wishlist) {
+        function colorize(price) {
+            if (price === undefined || price == item.price)
+                return ''
+
+            return ` style="color: #${price < item.price ? '8ae234' : 'ef2929'}"`
+        }
+
+        html.push(`
+            <tr>
+                <td>${item.title}</td>
+                <td>${item.price}</td>
+                <td${colorize(item.previous_price)}>${item.previous_price || ''}</td>
+                <td${colorize(item.lowest_price)}>${item.lowest_price || ''}</td>
+            </tr>
+        `)  
+    }
+
+    html.push(`
+            </table>
+        </div>
+    `)
+
+    page.innerHTML = html.join('')
+}
+
+
 const ENTRY_TYPES = {
     kwejk: (page, entry) => {
         create_image_entry(page, entry.content.image, entry.content.title)
@@ -49,6 +90,9 @@ const ENTRY_TYPES = {
     gogoanime: (page, entry) => {
         create_image_entry(page, entry.content.image, `${entry.content.title} - ${entry.content.episode}`)
     },
+    amazon_wishlist_watch: (page, entry) => {
+        create_amazon_entry(page, entry)
+    }
 }
 
 export function create_entry(entry) {
