@@ -172,8 +172,10 @@ horizontal-pages {
     vertical-align: center;
 }
 
-#bottom-info-menu[data-enabled="false"] {
+#bottom-info-menu[data-enabled="false"],
+#bottom-info-menu[data-enabled="false"] > a {
     color: #888;
+    pointer-events: none;
 }
 
 /* Context-menu */

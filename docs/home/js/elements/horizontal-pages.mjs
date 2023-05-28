@@ -1,7 +1,7 @@
 
 const VARS = {
-    vertical: ['column', 'y', 'height', 'clientHeight', 'scrollTop'],
-    horizontal: ['row', 'x', 'width', 'clientWidth', 'scrollLeft'],
+    vertical: ['column', 'y', 'height', 'scrollTop'],
+    horizontal: ['row', 'x', 'width', 'scrollLeft'],
 }
 
 let layout = window.localStorage['feed-layout']
@@ -10,7 +10,7 @@ if (VARS[layout] === undefined) {
     layout = 'horizontal'
 }
 
-const [FLEX_DIRECTION, AXIS, SIZE, CLIENT_SIZE, SCROLL_POS] = VARS[layout]
+const [FLEX_DIRECTION, AXIS, SIZE, SCROLL_POS] = VARS[layout]
 
 export class HorizontalPages extends HTMLElement {
     constructor() {
@@ -47,10 +47,11 @@ export class HorizontalPages extends HTMLElement {
     }
 
     update_page_index() {
-        this.scroll_position = this[SCROLL_POS] / this[CLIENT_SIZE]
+        const self_size = this.getClientRects()[0][SIZE]
+        this.scroll_position = this[SCROLL_POS] / self_size
         const current_page = Math.round(this.scroll_position)
 
-        this.is_scrolling = Math.abs(current_page * this[CLIENT_SIZE] - this[SCROLL_POS]) > 1
+        this.is_scrolling = Math.abs(current_page * self_size - this[SCROLL_POS]) > 1
 
         if (this.is_scrolling)
         {
@@ -66,8 +67,12 @@ export class HorizontalPages extends HTMLElement {
         this.dispatchEvent(new CustomEvent('page_change', {detail: {page: current_page}}))
     }
 
-    set_scroll_position(value) {
-        this[SCROLL_POS] = value * this[CLIENT_SIZE]
+    get_scroll() {
+        return this[SCROLL_POS]
+    }
+
+    set_scroll(value) {
+        this[SCROLL_POS] = value
     }
 }
   

@@ -45,13 +45,13 @@ function is_menu_hidden(menu) {
 }
 
 
-export function toggle_info() {
+function toggle_info() {
     const menu_func = is_menu_hidden(top_info_menu) ? menu_show : menu_hide
     menu_func([top_info_menu, bottom_info_menu])
 }
 
 
-export function show_context_menu() {
+function show_context_menu() {
     menu_show([context_menu, context_menu_shadow])
     context_menu.replaceChildren(fullscreen_item)
 
@@ -61,8 +61,13 @@ export function show_context_menu() {
 }
 
 
-export function hide_context_menu() {
+function hide_context_menu() {
     menu_hide([context_menu, context_menu_shadow])
+}
+
+
+function update_info_during_scroll() {
+    bottom_info_menu.dataset.enabled = !feed.is_scrolling && bottom_info_menu.dataset.forPage == feed.page
 }
 
 
@@ -74,8 +79,29 @@ export function request_info_menu(element) {
 
 document.body.addEventListener('create-info-menu', event => {
     bottom_info_menu.replaceChildren(...event.detail.menu)
+    bottom_info_menu.dataset.forPage = feed.page
 })
 
 document.body.addEventListener('create-context-menu', event => {
     context_menu.replaceChildren(...event.detail.menu, fullscreen_item)
 })
+
+document.body.addEventListener('click', () => toggle_info() )
+
+document.querySelector('#context-menu-opener').addEventListener('click', event => {
+    event.stopPropagation()
+    show_context_menu()
+})
+
+
+document.body.addEventListener('contextmenu', event => {
+    event.preventDefault()
+    show_context_menu()
+})
+
+document.querySelector('#context-menu-shadow').addEventListener('click', event => {
+    event.stopPropagation()
+    hide_context_menu()
+})
+
+feed.addEventListener('scroll', () => update_info_during_scroll())

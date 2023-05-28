@@ -16,13 +16,6 @@ function create_image_entry(page, image_url, title, subtitle) {
         html.push(`<div style="max-width: 90vw; overflow-wrap: anywhere; margin: 3vh">${subtitle}</div>`)
     }
 
-    html.push(`
-        <div style="position: absolute; top: 0; left: 0; pointer-events: none; opacity: 75%;">
-            <span style="color: gold; padding: 5px;" class="material-symbols-outlined text-border" data-icon="seen">visibility_off</span>
-            <span style="color: red; padding: 5px;" class="material-symbols-outlined text-border" data-icon="saved">favorite</span>
-        </div>
-    `)
-
     page.innerHTML = html.join('')
 
     let last_context = 0
@@ -59,16 +52,10 @@ const ENTRY_TYPES = {
     },
 }
 
-function update_page(page, entry) {
-    page.dataset.seen = entry.seen
-    page.dataset.saved = entry.like
-}
-
 export function create_entry(entry) {
     const page = document.createElement('section')
     page.classList.add('text-border', 'flexbox-column')
     page.style.cssText = 'justify-content: center; font-size: 2vh; position: relative;'
-    update_page(page, entry)
 
     if (entry !== null) {
         const creator = ENTRY_TYPES[entry.source]
@@ -111,7 +98,6 @@ export function create_entry(entry) {
             if (entry.seen === 0 || entry.seen === false) {
                 entry.seen = entry.seen === 0 ? 1 : true
                 await (new FeedAPI(entry.endpoint).update(entry))
-                update_page(page, entry)
             }
         })
 
@@ -124,7 +110,6 @@ export function create_entry(entry) {
             }[entry.like]
 
             await (new FeedAPI(entry.endpoint).update(entry))
-            update_page(page, entry)
             update_save_item()
         })
 

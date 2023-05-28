@@ -46,7 +46,7 @@ function create_pages() {
     const current_page = feed.page - 1
     const need_pages = Math.min(current_page + 5, entries.length)
 
-    const correct_scroll = feed.scroll_position
+    const saved_scroll = feed.get_scroll()
 
     while (generated_feed_pages < need_pages) {
         const entry = entries[generated_feed_pages]
@@ -56,14 +56,13 @@ function create_pages() {
         generated_feed_pages += 1
     }
     
-    feed.set_scroll_position(correct_scroll)
+    feed.set_scroll(saved_scroll)
     feed_progress.style.setProperty('--loaded', `${100 * (generated_feed_pages + 1) / (entries.length)}%`)
 }
 
 
 function update_feed_scroll() {
     feed_progress.style.setProperty('--value', `${100 * feed.scroll_position / (entries.length)}%`)
-    document.querySelector('#bottom-info-menu').dataset.enabled = feed.is_scrolling
 }
 
 
@@ -80,7 +79,6 @@ function update_seen_pages() {
 
 function request_info_menu() {
     const page = feed.querySelectorAll('section')[feed.page]
-    // console.log(feed.page, feed.querySelectorAll('section'))
     menus.request_info_menu(page)
 }
 
@@ -89,7 +87,6 @@ document.addEventListener('endpoint-selected', event => download_entries(event.d
 feed.addEventListener('scroll', () => update_feed_scroll())
 
 feed.addEventListener('page_change', () => {
-    console.log('change')
     update_seen_pages()
     create_pages()
     request_info_menu()
