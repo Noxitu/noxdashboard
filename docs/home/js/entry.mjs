@@ -39,8 +39,7 @@ const ENTRY_TYPES = {
         create_image_entry(page, entry.content.image, entry.content.title)
     },
     mangapill: (page, entry) => {
-        const image = entry.content.image.replace('https://cdn.readdetectiveconan.com/file/mangapill/i/', 'https://192.168.18.6:5000/mangaimg/image/')
-        // const image = entry.content.image.replace('https://cdn.readdetectiveconan.com/file/mangapill/i/', entry.endpoint.url() + 'mangaimg/image/')
+        const image = entry.content.image.replace('https://cdn.readdetectiveconan.com/file/mangapill/i/', entry.endpoint.url() + 'mangaimg/image/')
 
         const has_subtitle = entry.content.subtitle != ''
         const title = `${entry.content.title} - Chapter ${entry.content.chapter}`

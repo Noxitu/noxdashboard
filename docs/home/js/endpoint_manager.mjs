@@ -1,19 +1,26 @@
 import { Endpoint, endpointsList } from '../../shared/endpoint.js'
 import { FeedAPI } from '../../shared/js/api/feed_api.js'
+import { ImageCacheAPI } from '../../shared/js/api/image_cache_api.mjs'
 
 const endpoint_menu_elements = []
 const other_menu_elements = []
 let homepage = null
 
 
+function stats2string({count, size}) {
+    return `${count}    (${Math.round(size / 1024 / 1024 * 10) / 10} MB)`
+}
+
+
 function update_resolution() {
     homepage.querySelector('#resolution-info').innerHTML = `
-        ${window.innerWidth} x ${window.innerHeight}<br>
-        ${document.body.clientWidth} x ${document.body.clientHeight}<br>
-        ${document.querySelector('.layout').clientWidth} x ${document.querySelector('.layout').clientHeight}<br>
-        ${document.querySelector('#feed').clientHeight} + ${document.querySelector('#feed-progress').clientHeight}<br>
-        ${[...document.querySelectorAll('#feed > section')].map(e => e.clientHeight).join(', ')}<br>
+        ${window.innerWidth} x ${window.innerHeight}
     `
+    //     ${document.body.clientWidth} x ${document.body.clientHeight}<br>
+    //     ${document.querySelector('.layout').clientWidth} x ${document.querySelector('.layout').clientHeight}<br>
+    //     ${document.querySelector('#feed').clientHeight} + ${document.querySelector('#feed-progress').clientHeight}<br>
+    //     ${[...document.querySelectorAll('#feed > section')].map(e => e.clientHeight).join(', ')}<br>
+    // `
 }
 
 
@@ -123,13 +130,18 @@ async function select_endpoint(endpoint_name) {
 
 
 function update_homepage(endpoint) {
+    const image_cache_api = new ImageCacheAPI(endpoint)
+    image_cache_api.stats().then(data => {
+        homepage.querySelector('#image-cache-info').innerText = stats2string(data)
+    })
+
     const feed_api = new FeedAPI(endpoint)
 
     feed_api.getStats().then(data => {
         // homepage.querySelector('#stats-unread-count').innerText = '-'
         // homepage.querySelector('#stats-saved-count').innerText = '-'
         homepage.querySelector('#stats-archived-count').innerText = 0
-        homepage.querySelector('#stats-total').innerText = `${data.count}    (${Math.round(data.size / 1024 / 1024 * 10) / 10} MB)`
+        homepage.querySelector('#stats-total').innerText = stats2string(data)
     }).catch(() => {
         for (const item of endpoint_menu_elements) {
             if (item.dataset.endpointName == current_endpoint.name()) {

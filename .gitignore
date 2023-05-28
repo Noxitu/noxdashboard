@@ -6,6 +6,8 @@
 __pycache__/
 *.egg-info/
 
-Secrets.md
-ssl/*.pem
+/Deployment.md
+/Secrets.md
+/ssl/*.pem
 /db
+/image_cache/
