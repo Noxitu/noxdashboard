@@ -1,4 +1,17 @@
 
+const VARS = {
+    vertical: ['column', 'y', 'height', 'clientHeight', 'scrollTop'],
+    horizontal: ['row', 'x', 'width', 'clientWidth', 'scrollLeft'],
+}
+
+let layout = window.localStorage['feed-layout']
+
+if (VARS[layout] === undefined) {
+    layout = 'horizontal'
+}
+
+const [FLEX_DIRECTION, AXIS, SIZE, CLIENT_SIZE, SCROLL_POS] = VARS[layout]
+
 export class HorizontalPages extends HTMLElement {
     constructor() {
         super()
@@ -11,15 +24,17 @@ export class HorizontalPages extends HTMLElement {
         shadow.innerHTML = `
         <style>
         :host {
+            position: relative;
             display: flex;
+            flex-direction: ${FLEX_DIRECTION};
             align-items: stretch;
-            overflow-x: scroll;
-            scroll-snap-type: x mandatory;
+            overflow-${AXIS}: scroll;
+            scroll-snap-type: ${AXIS} mandatory;
         }
         
         ::slotted(section) {
-            min-width: 100vw;
-            width: 100vw;
+            min-${SIZE}: 100%;
+            ${SIZE}: 100%;
             scroll-snap-align: center;
             scroll-snap-stop: always;
         }
@@ -32,9 +47,10 @@ export class HorizontalPages extends HTMLElement {
     }
 
     update_page_index() {
-        const current_page = Math.round(this.scrollLeft / this.clientWidth)
+        this.scroll_position = this[SCROLL_POS] / this[CLIENT_SIZE]
+        const current_page = Math.round(this.scroll_position)
 
-        this.is_scrolling = (current_page * this.clientWidth != this.scrollLeft)
+        this.is_scrolling = Math.abs(current_page * this[CLIENT_SIZE] - this[SCROLL_POS]) > 1
 
         if (this.is_scrolling)
         {
@@ -49,7 +65,10 @@ export class HorizontalPages extends HTMLElement {
         this.page = current_page
         this.dispatchEvent(new CustomEvent('page_change', {detail: {page: current_page}}))
     }
-}
 
+    set_scroll_position(value) {
+        this[SCROLL_POS] = value * this[CLIENT_SIZE]
+    }
+}
   
 customElements.define('horizontal-pages', HorizontalPages)

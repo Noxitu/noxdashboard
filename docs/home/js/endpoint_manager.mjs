@@ -6,6 +6,17 @@ const other_menu_elements = []
 let homepage = null
 
 
+function update_resolution() {
+    homepage.querySelector('#resolution-info').innerHTML = `
+        ${window.innerWidth} x ${window.innerHeight}<br>
+        ${document.body.clientWidth} x ${document.body.clientHeight}<br>
+        ${document.querySelector('.layout').clientWidth} x ${document.querySelector('.layout').clientHeight}<br>
+        ${document.querySelector('#feed').clientHeight} + ${document.querySelector('#feed-progress').clientHeight}<br>
+        ${[...document.querySelectorAll('#feed > section')].map(e => e.clientHeight).join(', ')}<br>
+    `
+}
+
+
 function create_homepage() {
     homepage = document.createElement('section')
     homepage.id = 'homepage'
@@ -24,6 +35,7 @@ function create_homepage() {
             <span>Archived: </span><span id="stats-archived-count"></span>
             <span>Total: </span><span id="stats-total"> </span>
             <span>Image Cache: </span><span id="image-cache-info"></span>
+            <span>Resolution: </span><span id="resolution-info"></span>
         </div>
         <div style="flex-grow: 4;"></div>
     `
@@ -43,6 +55,9 @@ function create_homepage() {
 
     document.querySelector('#feed').append(homepage)
     document.addEventListener('endpoint-selected', event => update_homepage(event.detail.endpoint))
+    window.addEventListener('resize', () => update_resolution())
+
+    update_resolution()
 }
 
 
