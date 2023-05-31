@@ -35,6 +35,9 @@ function create_image_entry(page, image_url, title, subtitle) {
 
 
 function create_amazon_entry(page, entry) {
+    function is_none(value) {
+        return value === undefined || value === null
+    }
     const html = []
 
     html.push(`
@@ -49,19 +52,33 @@ function create_amazon_entry(page, entry) {
     `)
 
     for (const item of entry.content.wishlist) {
-        function colorize(price) {
-            if (price === undefined || price == item.price)
-                return ''
+        let color = null
 
-            return `color: #${item.price === null || price < item.price ? '8ae234' : 'ef2929'}`
+        if (is_none(item.price)) {
+            color = null
         }
+        else if (is_none(item.lowest_price) || item.lowest_price > item.price) {
+            color = 'gold'
+        }
+        else if (is_none(item.previous_price) || item.previous_price > item.price) {
+            color = '#8ae234'
+        }
+        else if (item.previous_price < item.price) {
+            color = '#ef2929'
+        }
+        else {
+            color = null
+        }
+
+        const color_style = (color !== null ? `color: ${color};` : '')
+
 
         html.push(`
             <tr>
                 <td>${item.title}</td>
-                <td style="text-align: center;">${item.price || ''}</td>
-                <td style="text-align: center; ${colorize(item.previous_price)}">${item.previous_price || ''}</td>
-                <td style="text-align: center; ${colorize(item.lowest_price)}">${item.lowest_price || ''}</td>
+                <td style="text-align: center; ${color_style}">${item.price || ''}</td>
+                <td style="text-align: center;">${item.previous_price || ''}</td>
+                <td style="text-align: center;">${item.lowest_price || ''}</td>
             </tr>
         `)  
     }
