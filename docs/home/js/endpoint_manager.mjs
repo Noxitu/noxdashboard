@@ -144,9 +144,9 @@ function update_homepage(endpoint) {
         homepage.querySelector('#stats-total').innerText = stats2string(data)
     }).catch(() => {
         for (const item of endpoint_menu_elements) {
-            if (item.dataset.endpointName == current_endpoint.name()) {
+            if (item.dataset.endpointName == endpoint.name()) {
                 item.classList.add('failed-endpoint')
-                item.setAttribute('href', current_endpoint.url())
+                item.setAttribute('href', endpoint.url())
                 item.setAttribute('rel', 'noopener noreferrer')
                 item.setAttribute('target', '_blank')
                 item.querySelector('.icon').innerText = 'sync_problem'
