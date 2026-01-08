@@ -40,7 +40,7 @@ function download_entries(endpoint) {
         document.querySelector('#stats-saved-count').innerText = saved_count
         document.querySelector('#query-duration').innerText = small_duration2string(data.query_duration)
 
-        entries = data
+        entries = data.items
         entries.push(null)
         create_pages()
     })
