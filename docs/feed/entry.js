@@ -239,8 +239,6 @@ export class EndpointEntry extends Entry {
             <b>RAM</b> <progress class="ram-usage" max="100"></progress>
             <b>Entry count</b> <span class="feed-count">-</span>
             <b>DB size</b> <span class="feed-size">-</span> 
-            <b>Query duration</b> <span class="query-duration">-</span>
-            <b>Stats duration</b> <span class="stats-duration">-</span>
         `
         this.element.append(this.feed_stats_element)
         const getStatElement = s => this.feed_stats_element.querySelector(s)
@@ -253,7 +251,6 @@ export class EndpointEntry extends Entry {
         new FeedAPI(this.endpoint).getStats().then(data => {
             getStatElement('.feed-count').innerHTML = data.count
             getStatElement('.feed-size').innerHTML = `${Math.round(data.size / 1024 / 1024 * 10) / 10} MB`
-            getStatElement('.stats-duration').innerHTML = `${Math.round(data.query_duration * 100) / 100} sec`
         })
 
         this.add_actions(['endpoints'])

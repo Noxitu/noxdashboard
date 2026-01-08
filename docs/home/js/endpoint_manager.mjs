@@ -11,6 +11,9 @@ function stats2string({count, size}) {
     return `${count}    (${Math.round(size / 1024 / 1024 * 10) / 10} MB)`
 }
 
+function small_duration2string(seconds) {
+    return `${Math.round(seconds * 1000) / 1000} s`
+}
 
 function update_resolution() {
     homepage.querySelector('#resolution-info').innerHTML = `
@@ -41,6 +44,8 @@ function create_homepage() {
             <span>Saved: </span><span id="stats-saved-count"></span>
             <span>Archived: </span><span id="stats-archived-count"></span>
             <span>Total: </span><span id="stats-total"> </span>
+            <span>Query duration: </span><span id="query-duration"> </span>
+            <span>Stats duration: </span><span id="stats-duration"> </span>
             <span>Image Cache: </span><span id="image-cache-info"></span>
             <span>Resolution: </span><span id="resolution-info"></span>
         </div>
@@ -142,6 +147,7 @@ function update_homepage(endpoint) {
         // homepage.querySelector('#stats-saved-count').innerText = '-'
         homepage.querySelector('#stats-archived-count').innerText = 0
         homepage.querySelector('#stats-total').innerText = stats2string(data)
+        homepage.querySelector('#stats-duration').innerText = small_duration2string(data.query_duration)
     }).catch(() => {
         for (const item of endpoint_menu_elements) {
             if (item.dataset.endpointName == endpoint.name()) {

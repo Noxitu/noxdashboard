@@ -5,4 +5,4 @@ $Wheels = "$WorkspaceRoot/.wheels"
 mkdir "$Wheels" -Force
 cd $WorkspaceRoot
 
-pip wheel './backend' --wheel-dir "$Wheels" --no-deps
+python -m pip wheel './backend' --wheel-dir "$Wheels" --no-deps

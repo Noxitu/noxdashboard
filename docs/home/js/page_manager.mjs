@@ -9,6 +9,10 @@ let last_seen_page = -1
 const feed = document.querySelector('#feed')
 const feed_progress = document.querySelector('#feed-progress')
 
+function small_duration2string(seconds) {
+    return `${Math.round(seconds * 1000) / 1000} s`
+}
+
 function download_entries(endpoint) {
     if (entries !== null) {
         console.warn('Changing endpoint after successful load not supported.')
@@ -20,7 +24,7 @@ function download_entries(endpoint) {
         let unread_count = 0
         let saved_count = 0
 
-        for (const entry of data) {
+        for (const entry of data.items) {
             if (entry.seen == false || entry.seen == 0) {
                 unread_count += 1
             }
@@ -34,6 +38,7 @@ function download_entries(endpoint) {
 
         document.querySelector('#stats-unread-count').innerText = unread_count
         document.querySelector('#stats-saved-count').innerText = saved_count
+        document.querySelector('#query-duration').innerText = small_duration2string(data.query_duration)
 
         entries = data
         entries.push(null)
