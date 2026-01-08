@@ -1,3 +1,5 @@
+import time
+
 from fastapi import Depends
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -22,16 +24,24 @@ def create_app():
 
     @app.get('/stats', summary='Get database statistics.')
     def stats(db: Session = Depends(database.get)):
-        return dict(
+        start_time = time.perf_counter()
+
+        ret = dict(
             count=db.query(models.Post).count(),
             saved=db.query(models.Post).where(models.Post.like == 1).count(),
             unread=db.query(models.Post).where(models.Post.seen == False).count(),
             size=database.get_size()
         )
 
+        end_time = time.perf_counter()
+        ret["query_duration"] = end_time - start_time
+        return ret
+
 
     @app.get('/', summary='List feed elements.', response_model=list[schemas.Post])
     def feed(filter: str = 'interesting', db: Session = Depends(database.get)):
+        start_time = time.perf_counter()
+
         items = db.query(models.Post)
 
         if filter == 'interesting':
@@ -50,7 +60,12 @@ def create_app():
         items = items.all()
         items = [schemas.Post.from_db(item) for item in items]
 
-        return items
+        end_time = time.perf_counter()
+
+        return {
+            "items": items,
+            "query_duration": end_time - start_time,
+        }
 
     @app.put('/add', summary='Add multiple new feed elements.')
     @permissions(PERMISSION_FEED_SOURCE)

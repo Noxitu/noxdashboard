@@ -16,7 +16,7 @@ async function init() {
         const promise = new FeedAPI(endpoint).get().then(data => {
             loading_entry.increase()
             return {
-                data: data,
+                data: data.items,
                 endpoint: endpoint,
             }
         }).catch(() => {
