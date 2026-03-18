@@ -141,7 +141,20 @@ export function create_entry(entry) {
 
         update_save_item()
 
+        let search_item = null
         let open_item = null
+
+        if (entry.content.title !== undefined) {
+            const params = new URLSearchParams()
+            params.set("filterBy", "title")
+            params.set("title", entry.content.title)
+            search_item = document.createElement('a')
+            search_item.innerHTML = '<span class="material-symbols-outlined">feature_search</span> Search'
+            search_item.setAttribute('rel', 'noopener noreferrer')
+            search_item.setAttribute('target', '_blank')
+            search_item.setAttribute('href', `?${params.toString()}`)
+            search_item.addEventListener('click', event => event.stopPropagation() )
+        }
 
         if (entry.content.url !== undefined) {
             open_item = document.createElement('a')
@@ -179,6 +192,7 @@ export function create_entry(entry) {
             page.dispatchEvent(new CustomEvent('create-info-menu', {detail: {
                 menu: [
                     save_item, 
+                    ...(search_item !== null ? [search_item] : []),
                     ...(open_item !== null ? [open_item] : [])
                 ]
             }, bubbles: true}))

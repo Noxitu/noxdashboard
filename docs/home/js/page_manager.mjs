@@ -23,8 +23,17 @@ function download_entries(endpoint) {
     feed_api.get().then(data => {
         let unread_count = 0
         let saved_count = 0
+        let items = data.items
 
-        for (const entry of data.items) {
+        const params = new URLSearchParams(document.location.search)
+
+        if (params.get("filterBy") === "title")
+        {
+            const title = params.get("title")
+            items = items.filter(item => item.content?.title == title)
+        }
+
+        for (const entry of items) {
             if (entry.seen == false || entry.seen == 0) {
                 unread_count += 1
             }
@@ -40,7 +49,7 @@ function download_entries(endpoint) {
         document.querySelector('#stats-saved-count').innerText = saved_count
         document.querySelector('#query-duration').innerText = small_duration2string(data.query_duration)
 
-        entries = data.items
+        entries = items
         entries.push(null)
         create_pages()
     })
